@@ -62,7 +62,7 @@ void init() {
     perror("Binding failed");
     exit(1);
   }
-  // printf("init succesful\n");
+  printf("init succesful\n");
 }
 
 void get(char *path, int client_socket) {
@@ -74,11 +74,11 @@ void get(char *path, int client_socket) {
   else
     snprintf(file_to_open, sizeof(file_to_open), "output%s", path);
   if (strstr(file_to_open, "..") != NULL) {
-    // printf("invalid path\n");
+    printf("invalid path\n");
     close(client_socket);
     return;
   }
-  // printf("%s\n",file_to_open);
+  printf("%s\n",file_to_open);
 
   content_type = get_type(file_to_open);
 
@@ -100,7 +100,7 @@ void post(char *body, int client_socket) {
   body = strstr(body, "=");
   if (body != NULL) {
     body++;
-    // printf("%s\n",body);
+    printf("Message: %s\n",body);
   }
   char *go_back =
       "HTTP/1.1 303 See Other\r\nLocation:/\r\nContent-Length: 0\r\n\r\n";
@@ -164,9 +164,9 @@ void handle_client(int client_socket) {
   char *header_end = strstr(buffer, "\r\n\r\n");
 
   sscanf(buffer, "%s %s %s", method, path, protocol);
-  // printf("Method: %15s\n",method);
-  // printf("Path: %255s\n",path);
-  // printf("Protocol: %15s\n",protocol);
+  printf("Method: %s\n",method);
+  printf("Path: %s\n",path);
+  printf("Protocol: %s\n",protocol);
 
   if (!strcmp(method, "GET"))
     get(path, client_socket);
@@ -176,7 +176,7 @@ void handle_client(int client_socket) {
   } else
     error405(client_socket);
 
-  // printf("Connection closed\n");
+  printf("Connection closed\n");
 }
 
 void run_forever() {
@@ -184,10 +184,10 @@ void run_forever() {
     int client_socket =
         accept(server_fd, (struct sockaddr *)&addr, (socklen_t *)&addrlen);
     if (client_socket < 0) {
-      // printf("Unsuccessful connection\n");
+      printf("Unsuccessful connection\n");
       continue;
     }
-    // printf("Accepted connection\n");
+    printf("Accepted connection\n");
     pid_t pid = fork();
     if (pid < 0) {
       perror("fork unsuccessful\n");
@@ -197,14 +197,13 @@ void run_forever() {
 
     if (pid == 0) {
       // child;
-      // printf("child process\n");
+      printf("child process\n");
       close(server_fd);
-      // printf("HERE\n");
       handle_client(client_socket);
       close(client_socket);
       exit(0);
     } else {
-      // printf("parent process\n");
+      printf("parent process\n");
       close(client_socket);
     }
   }
